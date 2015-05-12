@@ -4,6 +4,8 @@ import Data.List
 import System.FilePath.Posix
 import qualified System.FilePath.Find as Find
 import System.FilePath.Find hiding (find)
+import Control.Monad
+import qualified System.Posix.Files as Files
 
 main :: IO ()
 main = do
@@ -27,8 +29,8 @@ countObjects = do
 countObjectsAndSize :: FilePath -> IO (Int, Int)
 countObjectsAndSize objectsDir = do
   files <- getAllObjects objectsDir
-  putStrLn $ show files
-  return (length files, 12)
+  size <- sizeOf files
+  return (length files, size)
 
 formatCountObjects :: (Int, Int) -> String
 formatCountObjects (count, size) = unwords [show count, "objects,", show size, "kilobytes"]
@@ -36,4 +38,16 @@ formatCountObjects (count, size) = unwords [show count, "objects,", show size, "
 getAllObjects :: FilePath -> IO [FilePath]
 getAllObjects dir = Find.find (return True) (fileType ==? RegularFile) dir
 
+sizeOf :: [FilePath] -> IO Int
+sizeOf files = 
+              do
+                sizes <- (mapM 
+                          ((liftM (fromIntegral . toInteger . Files.fileSize)) . Files.getFileStatus) 
+                          files)
+                return (foldl (\acc a -> acc + a) 0 sizes)
+  -- foldM f 0 files
+  -- where
+  --   f acc file = do
+  --     fs <- Files.getFileStatus file
+  --     return (acc + ((fromIntegral . toInteger . Files.fileSize) fs))
 
