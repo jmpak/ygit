@@ -10,30 +10,28 @@ import qualified System.Posix.Files as Files
 main :: IO ()
 main = do
   args <- getArgs
-  case args of
-    ("count-objects":as) -> countObjects
-    _ -> putStrLn "Yet to be implemented"
-
-countObjects :: IO ()
-countObjects = do
   cwd <- getCurrentDirectory
   let gitObjectsDir = cwd </> ".git/objects"
-  directoryExists <- doesDirectoryExist gitObjectsDir
-  if directoryExists
-  then do
-    countAndSize <- countObjectsAndSize gitObjectsDir
-    putStrLn . formatCountObjects $ countAndSize
-  else 
-    putStrLn "fatal: Not a git repository (or any of the parent directories): .git"
+  countObjects gitObjectsDir >>= print
+  directoryExist <- doesDirectoryExist gitObjectsDir
+  case directoryExist of
+    True -> 
+      case args of
+        ("count-objects":as) -> countObjects gitObjectsDir >>= print
+        _ -> print "Yet to be implemented"
+    False -> 
+      print "fatal: Not a git repository (or any of the parent directories): .git"
+   
+data CountObjects = CountObjects Int Int deriving (Eq)
+instance Show CountObjects where
+  show (CountObjects count size) = 
+    unwords [show count, "objects,", show size, "kylobytes"]
 
-countObjectsAndSize :: FilePath -> IO (Int, Int)
-countObjectsAndSize objectsDir = do
-  files <- getAllObjects objectsDir
-  size <- sizeOf files
-  return (length files, size)
-
-formatCountObjects :: (Int, Int) -> String
-formatCountObjects (count, size) = unwords [show count, "objects,", show size, "kilobytes"]
+countObjects :: FilePath -> IO CountObjects
+countObjects gitDir = do
+      files <- getAllObjects gitDir
+      size <- sizeOf files
+      return (CountObjects (length files) size)
 
 getAllObjects :: FilePath -> IO [FilePath]
 getAllObjects dir = Find.find (return True) (fileType ==? RegularFile) dir
