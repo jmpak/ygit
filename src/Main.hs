@@ -5,6 +5,7 @@ import System.FilePath.Posix
 import qualified System.FilePath.Find as Find
 import System.FilePath.Find hiding (find)
 import Control.Monad
+import Data.Functor
 import qualified System.Posix.Files as Files
 
 main :: IO ()
@@ -12,7 +13,6 @@ main = do
   args <- getArgs
   cwd <- getCurrentDirectory
   let gitObjectsDir = cwd </> ".git/objects"
-  countObjects gitObjectsDir >>= print
   directoryExist <- doesDirectoryExist gitObjectsDir
   case directoryExist of
     True -> 
@@ -25,27 +25,22 @@ main = do
 data CountObjects = CountObjects Int Int deriving (Eq)
 instance Show CountObjects where
   show (CountObjects count size) = 
-    unwords [show count, "objects,", show size, "kylobytes"]
+    unwords [show count, "objects,", show size, "kilobytes"]
 
 countObjects :: FilePath -> IO CountObjects
 countObjects gitDir = do
       files <- getAllObjects gitDir
+      print files
       size <- sizeOf files
       return (CountObjects (length files) size)
 
 getAllObjects :: FilePath -> IO [FilePath]
-getAllObjects dir = Find.find (return True) (fileType ==? RegularFile) dir
+getAllObjects dir = Find.find (return True) (fileType ==? RegularFile &&? extension /=? ".idx" &&? extension /=? ".pack") dir
 
 sizeOf :: [FilePath] -> IO Int
-sizeOf files = 
-              do
-                sizes <- (mapM 
-                          ((liftM (fromIntegral . toInteger . Files.fileSize)) . Files.getFileStatus) 
-                          files)
-                return (foldl (\acc a -> acc + a) 0 sizes)
-  -- foldM f 0 files
-  -- where
-  --   f acc file = do
-  --     fs <- Files.getFileStatus file
-  --     return (acc + ((fromIntegral . toInteger . Files.fileSize) fs))
+sizeOf files = do
+    sizes <- mapM sizeFor files 
+    return $ foldl (+) 0 sizes
 
+sizeFor :: FilePath -> IO Int
+sizeFor file = (fromIntegral . toInteger . Files.fileSize) <$> (Files.getFileStatus file) 
