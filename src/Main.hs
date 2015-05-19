@@ -30,16 +30,15 @@ instance Show CountObjects where
 countObjects :: FilePath -> IO CountObjects
 countObjects gitDir = do
       files <- getAllObjects gitDir
-      print files
       size <- sizeOf files
       return (CountObjects (length files) size)
 
 getAllObjects :: FilePath -> IO [FilePath]
-getAllObjects dir = Find.find (return True) (fileType ==? RegularFile &&? extension /=? ".idx" &&? extension /=? ".pack") dir
+getAllObjects dir = Find.find (return True) (fileType ==? RegularFile &&? extension /=? ".idx" &&? extension /=? ".pack" &&? fileName /=? "packs") dir
 
 sizeOf :: [FilePath] -> IO Int
 sizeOf files = do
-    sizes <- mapM sizeFor files 
+    sizes <- mapM sizeFor files
     return $ foldl (+) 0 sizes
 
 sizeFor :: FilePath -> IO Int
