@@ -14,11 +14,12 @@ instance Show CountObjects where
   show (CountObjects count size) = 
     unwords [show count, "objects,", show size, "kilobytes"]
 
-countObjects :: FilePath -> IO CountObjects
-countObjects gitDir = do
+countObjects :: [String] -> FilePath -> IO ()
+countObjects (_:_) _ = print "print usage yet to be implemented"
+countObjects [] gitDir = do
       files <- getAllObjects gitDir
       size <- sizeOf files
-      return (CountObjects (length files) (round $ fromIntegral size / 1024))
+      print (CountObjects (length files) (round $ fromIntegral size / 1024))
 
 getAllObjects :: FilePath -> IO [FilePath]
 getAllObjects dir = Find.find (return True) (fileType ==? RegularFile &&? extension /=? ".idx" &&? extension /=? ".pack" &&? fileName /=? "packs") dir

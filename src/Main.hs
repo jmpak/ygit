@@ -12,7 +12,7 @@ main = do
   case directoryExist of
     True -> 
       case args of
-        ("count-objects":cmdArgs) -> countObjects gitObjectsDir >>= print
+        ("count-objects":cmdArgs) -> countObjects cmdArgs gitObjectsDir
         -- ("hash-object":cmdArgs) -> hashObject cmdArgs gitObjectsDir >>= print
         _ -> print "Yet to be implemented"
     False -> 
