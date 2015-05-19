@@ -15,6 +15,7 @@ instance Show CountObjects where
     unwords [show count, "objects,", show size, "kilobytes"]
 
 countObjects :: [String] -> FilePath -> IO ()
+
 countObjects (_:_) _ = print "print usage yet to be implemented"
 countObjects [] gitDir = do
       files <- getAllObjects gitDir
