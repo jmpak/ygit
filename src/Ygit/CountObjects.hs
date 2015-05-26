@@ -5,7 +5,6 @@ module Ygit.CountObjects (
 import Data.List
 import qualified System.FilePath.Find as Find
 import System.FilePath.Find hiding (find)
-import Control.Monad
 import Data.Functor
 import qualified System.Posix.Files as Files
 
