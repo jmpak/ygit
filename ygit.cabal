@@ -15,7 +15,6 @@ build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
 
-import Data.List
 executable ygit
   main-is: Main.hs
   -- other-modules:       
