@@ -5,25 +5,32 @@ module Ygit.HashObject (
 import Control.Monad
 import Data.Functor
 import Crypto.Hash.SHA1 (hash)
-import qualified Data.ByteString as Strict
+import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Char8 as Char8
 import Text.Printf (printf)
 import qualified System.Posix.Files as Files
 
 hashObject :: [String] -> IO ()
-hashObject = mapM_ ((fmap toHex) . hashFile >=> print)
+hashObject ("-w":files) = mapM_ (hashFile >=> saveAndPrint) files
+hashObject files = mapM_ (hashFile >=> print . fst) files
 
-header :: FilePath -> IO Strict.ByteString
+saveAndPrint :: (ByteString.ByteString, String) -> IO ()
+saveAndPrint (content, h) = do
+  ByteString.writeFile "~/Desktop/test" content
+  print h
+
+header :: FilePath -> IO ByteString.ByteString
 header =  (fmap (\f -> Char8.pack $ "blob " ++ show f ++ "\0" )) . sizeFor
 
-toHex :: Strict.ByteString -> String
-toHex bytes = Strict.unpack bytes >>= printf "%02x"
+toHex :: ByteString.ByteString -> String
+toHex bytes = ByteString.unpack bytes >>= printf "%02x"
 
-hashFile :: FilePath -> IO Strict.ByteString
+hashFile :: FilePath -> IO (ByteString.ByteString, String)
 hashFile f = do
         fileHeader <- header f
-        fileContent <- Strict.readFile f
-        return $ hash $ (Strict.append fileHeader fileContent)
+        fileContent <- ByteString.readFile f
+        let blobContent = ByteString.append fileHeader fileContent
+        return $ (blobContent, toHex $ hash blobContent)
 
 sizeFor :: FilePath -> IO Int
 sizeFor file = (fromIntegral . toInteger . Files.fileSize) <$> (Files.getFileStatus file)
