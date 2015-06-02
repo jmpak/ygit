@@ -11,10 +11,7 @@ import Text.Printf (printf)
 import qualified System.Posix.Files as Files
 
 hashObject :: [String] -> IO ()
-hashObject = mapM_ (hashOfFile >=> print)
-
-hashOfFile :: FilePath -> IO String
-hashOfFile = (fmap toHex) . hashFile
+hashObject = mapM_ ((fmap toHex) . hashFile >=> print)
 
 header :: FilePath -> IO Strict.ByteString
 header =  (fmap (\f -> Char8.pack $ "blob " ++ show f ++ "\0" )) . sizeFor
