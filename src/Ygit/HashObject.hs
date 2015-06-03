@@ -6,7 +6,6 @@ import Control.Monad
 import Data.Functor
 import Crypto.Hash.SHA1 (hash)
 import qualified Data.ByteString.Lazy as L
-import Data.ByteString.Lazy (fromChunks)
 import qualified Data.ByteString.Char8 as C
 import Text.Printf (printf)
 import qualified System.Posix.Files as F
@@ -28,7 +27,7 @@ saveAndPrint (content, h) = do
   exists <- doesFileExist filepath
   if not exists
   then 
-    L.writeFile filepath $ (Z.compress . fromChunks) [content]
+    L.writeFile filepath $ (Z.compress . L.fromChunks) [content]
   else 
     return ()
   print h
