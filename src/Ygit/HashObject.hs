@@ -16,7 +16,7 @@ import qualified Codec.Compression.Zlib as Z
 
 hashObject :: [String] -> IO ()
 hashObject ("-w":files) = mapM_ (hashFile >=> saveAndPrint) files
-hashObject files = mapM_ (hashFile >=> print . fst) files
+hashObject files = mapM_ (hashFile >=> print . snd) files
 
 saveAndPrint :: (C.ByteString, String) -> IO ()
 saveAndPrint (content, h) = do
