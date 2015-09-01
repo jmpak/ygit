@@ -3,6 +3,7 @@ import System.Directory
 import System.FilePath.Posix
 import Ygit.CountObjects
 import Ygit.HashObject
+import Ygit.LsFiles
 
 main :: IO ()
 main = do
@@ -10,6 +11,7 @@ main = do
   case args of
     ("count-objects":cmdArgs) -> callWithObjectsDir $ countObjects cmdArgs
     ("hash-object":cmdArgs) -> hashObject cmdArgs
+    ("ls-files":cmdArgs) -> lsFiles cmdArgs
 
 callWithObjectsDir :: (FilePath -> IO ()) -> IO ()
 callWithObjectsDir f = do
