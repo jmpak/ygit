@@ -19,10 +19,9 @@ indexFile = do
   let filePath = (cwd </> ".git" </> "index")
   BS.readFile filePath
 
-readHeader :: Get BS.ByteString
+readHeader :: Get Word32
 readHeader = do 
-  d <- getWord8
-  i <- getWord8
-  r <- getWord8
-  c <- getWord8
-  return $ BS.pack [d,i,r,c]
+  dirc <- getWord32be
+  version <- getWord32be
+  numberOfFiles <- getWord32be
+  return $ numberOfFiles
