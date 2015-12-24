@@ -30,7 +30,7 @@ This is Haskell implementation of git.
 ## [ls-files](https://git-scm.com/docs/git-ls-files)
   Show information about files in the index and the working tree
 
-    cabal run ls-files
+    stack exec ygit ls-files
 
 
 ### Supported options:
@@ -40,9 +40,9 @@ This is Haskell implementation of git.
 ## Build and run
 
 ```sh
-cabal build
+stack build
 ```
 
 ```sh
-cabal run count-objects
+stack exex ygit count-objects
 ```
